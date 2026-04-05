@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VolunteerHub.Domain/VolunteerHub.Domain.csproj" />
+    <Project Path="src/VolunteerHub.Contracts/VolunteerHub.Contracts.csproj" />
+    <Project Path="src/VolunteerHub.Application/VolunteerHub.Application.csproj" />
+    <Project Path="src/VolunteerHub.Infrastructure/VolunteerHub.Infrastructure.csproj" />
+    <Project Path="src/VolunteerHub.Web/VolunteerHub.Web.csproj" />
+  </Folder>
+</Solution>

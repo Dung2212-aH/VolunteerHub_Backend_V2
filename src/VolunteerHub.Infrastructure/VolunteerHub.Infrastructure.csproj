@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Pomelo 9.0.0 is the latest stable release (targets EF Core 9).
+      There is no Pomelo release for EF Core 10 yet.
+      EF Core 9.x packages are used here for Pomelo compatibility.
+      The project still targets net10.0 — this is safe because .NET 10
+      can load .NET 9 libraries. Monitor https://github.com/PomeloFoundation/
+      Pomelo.EntityFrameworkCore.MySql for an EF Core 10 compatible release,
+      then update all three packages to 10.x together.
+    -->
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.14" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- Reference ASP.NET Core shared framework for DI + Configuration abstractions -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VolunteerHub.Application\VolunteerHub.Application.csproj" />
+  </ItemGroup>
+
+</Project>
