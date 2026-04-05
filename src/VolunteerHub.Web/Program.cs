@@ -15,17 +15,14 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// Seed identity roles
 await VolunteerHub.Infrastructure.Seed.RoleSeeder.SeedAsync(app.Services);
-
-// Seed badges and notification templates
 await VolunteerHub.Infrastructure.Persistence.Seeding.BadgeSeeder.SeedAsync(app.Services);
 await VolunteerHub.Infrastructure.Persistence.Seeding.NotificationTemplateSeeder.SeedAsync(app.Services);
 
-// ── Pipeline ────────────────────────────────────────────────────────
+app.UseExceptionHandler();
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -34,6 +31,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapStaticAssets();
 

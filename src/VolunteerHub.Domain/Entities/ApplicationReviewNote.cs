@@ -9,6 +9,5 @@ public class ApplicationReviewNote : AuditableEntity
 
     public Guid AuthorUserId { get; set; }
     public string Content { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsPrivate { get; set; } = true;
 }
