@@ -49,6 +49,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<VolunteerHub.Domain.Entities.Rating> Ratings => Set<VolunteerHub.Domain.Entities.Rating>();
     public DbSet<VolunteerHub.Domain.Entities.FeedbackReport> FeedbackReports => Set<VolunteerHub.Domain.Entities.FeedbackReport>();
 
+    public DbSet<VolunteerHub.Domain.Entities.SponsorProfile> SponsorProfiles => Set<VolunteerHub.Domain.Entities.SponsorProfile>();
+    public DbSet<VolunteerHub.Domain.Entities.SponsorContactPerson> SponsorContactPersons => Set<VolunteerHub.Domain.Entities.SponsorContactPerson>();
+    public DbSet<VolunteerHub.Domain.Entities.SponsorContribution> SponsorContributions => Set<VolunteerHub.Domain.Entities.SponsorContribution>();
+    public DbSet<VolunteerHub.Domain.Entities.EventSponsor> EventSponsors => Set<VolunteerHub.Domain.Entities.EventSponsor>();
+    public DbSet<VolunteerHub.Domain.Entities.SponsorshipPackage> SponsorshipPackages => Set<VolunteerHub.Domain.Entities.SponsorshipPackage>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

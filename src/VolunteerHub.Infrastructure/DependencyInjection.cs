@@ -9,22 +9,16 @@ using VolunteerHub.Infrastructure.Persistence.Repositories;
 
 namespace VolunteerHub.Infrastructure;
 
-/// <summary>
-/// Registers all Infrastructure-layer services into the DI container.
-/// Called from Program.cs via builder.Services.AddInfrastructure(config).
-/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // ── Database ────────────────────────────────────────────────
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AppDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-        // ── Identity ────────────────────────────────────────────────
         services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
         {
             options.Password.RequireDigit = true;
@@ -34,13 +28,11 @@ public static class DependencyInjection
             options.Password.RequiredLength = 8;
 
             options.User.RequireUniqueEmail = true;
-
             options.SignIn.RequireConfirmedEmail = false;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
-        // ── Repositories ────────────────────────────────────────────
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IVolunteerProfileRepository, VolunteerProfileRepository>();
@@ -49,30 +41,31 @@ public static class DependencyInjection
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
         services.AddScoped<IApplicationApprovalRepository, ApplicationApprovalRepository>();
         services.AddScoped<IRecognitionRepository, RecognitionRepository>();
+        services.AddScoped<ISponsorRepository, SponsorRepository>();
 
-        // ── Services ────────────────────────────────────────────────
         services.AddScoped<IAccountService, AccountService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IVolunteerProfileService, VolunteerHub.Application.Services.VolunteerProfileService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IEventService, VolunteerHub.Application.Services.EventService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IOrganizerProfileService, VolunteerHub.Application.Services.OrganizerProfileService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IOrganizerVerificationService, VolunteerHub.Application.Services.OrganizerVerificationService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IAttendanceService, VolunteerHub.Application.Services.AttendanceService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IEventApplicationService, VolunteerHub.Application.Services.EventApplicationService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IApplicationReviewService, VolunteerHub.Application.Services.ApplicationReviewService>();
+        services.AddScoped<IVolunteerProfileService, VolunteerHub.Application.Services.VolunteerProfileService>();
+        services.AddScoped<IEventService, VolunteerHub.Application.Services.EventService>();
+        services.AddScoped<IOrganizerProfileService, VolunteerHub.Application.Services.OrganizerProfileService>();
+        services.AddScoped<IOrganizerVerificationService, VolunteerHub.Application.Services.OrganizerVerificationService>();
+        services.AddScoped<IAttendanceService, VolunteerHub.Application.Services.AttendanceService>();
+        services.AddScoped<IEventApplicationService, VolunteerHub.Application.Services.EventApplicationService>();
+        services.AddScoped<IApplicationReviewService, VolunteerHub.Application.Services.ApplicationReviewService>();
 
-        services.AddScoped<VolunteerHub.Application.Abstractions.ICertificateEligibilityService, VolunteerHub.Application.Services.CertificateEligibilityService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.ICertificateService, VolunteerHub.Application.Services.CertificateService>();
-        services.AddScoped<VolunteerHub.Application.Abstractions.IBadgeService, VolunteerHub.Application.Services.BadgeService>();
+        services.AddScoped<ICertificateEligibilityService, VolunteerHub.Application.Services.CertificateEligibilityService>();
+        services.AddScoped<ICertificateService, VolunteerHub.Application.Services.CertificateService>();
+        services.AddScoped<IBadgeService, VolunteerHub.Application.Services.BadgeService>();
 
-        // ── Notification ─────────────────────────────────────────────
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IEmailSender, VolunteerHub.Infrastructure.Services.ConsoleEmailSender>();
         services.AddScoped<INotificationService, VolunteerHub.Application.Services.NotificationService>();
 
-        // ── Rating & Feedback ────────────────────────────────────────
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IRatingService, VolunteerHub.Application.Services.RatingService>();
         services.AddScoped<IFeedbackService, VolunteerHub.Application.Services.FeedbackService>();
+
+        services.AddScoped<ISponsorProfileService, VolunteerHub.Application.Services.SponsorProfileService>();
+        services.AddScoped<ISponsorManagementService, VolunteerHub.Application.Services.SponsorManagementService>();
 
         return services;
     }

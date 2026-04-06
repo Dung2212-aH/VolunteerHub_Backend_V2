@@ -21,4 +21,6 @@ public class Event : AuditableEntity, ISoftDeletable
     public ICollection<EventSkillRequirement> SkillRequirements { get; set; } = new List<EventSkillRequirement>();
     public ICollection<EventShift> Shifts { get; set; } = new List<EventShift>();
     public ICollection<EventApplication> Applications { get; set; } = new List<EventApplication>();
+    public ICollection<SponsorshipPackage> SponsorshipPackages { get; set; } = new List<SponsorshipPackage>();
+    public ICollection<EventSponsor> EventSponsors { get; set; } = new List<EventSponsor>();
 }
