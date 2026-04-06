@@ -10,11 +10,16 @@ public class SponsorManagementService : ISponsorManagementService
 {
     private readonly ISponsorRepository _sponsorRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAdminAuditService _adminAuditService;
 
-    public SponsorManagementService(ISponsorRepository sponsorRepository, IUnitOfWork unitOfWork)
+    public SponsorManagementService(
+    ISponsorRepository sponsorRepository,
+    IUnitOfWork unitOfWork,
+    IAdminAuditService adminAuditService)
     {
         _sponsorRepository = sponsorRepository;
         _unitOfWork = unitOfWork;
+        _adminAuditService = adminAuditService;
     }
 
     public async Task<Result<List<SponsorProfileResponse>>> GetPendingSponsorProfilesAsync(CancellationToken cancellationToken = default)
@@ -35,6 +40,13 @@ public class SponsorManagementService : ISponsorManagementService
         _sponsorRepository.UpdateSponsorProfile(profile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await _adminAuditService.LogAsync(
+            Guid.Empty,
+            request.Approve ? "SponsorProfile.Approved" : "SponsorProfile.Rejected",
+            nameof(SponsorProfile),
+            profile.Id,
+            request.Reason ?? string.Empty,
+            cancellationToken);
         return Result.Success();
     }
 

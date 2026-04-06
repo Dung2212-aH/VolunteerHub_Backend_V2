@@ -55,6 +55,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<VolunteerHub.Domain.Entities.EventSponsor> EventSponsors => Set<VolunteerHub.Domain.Entities.EventSponsor>();
     public DbSet<VolunteerHub.Domain.Entities.SponsorshipPackage> SponsorshipPackages => Set<VolunteerHub.Domain.Entities.SponsorshipPackage>();
 
+    public DbSet<VolunteerHub.Domain.Entities.AdminActionLog> AdminActionLogs => Set<VolunteerHub.Domain.Entities.AdminActionLog>();
+    public DbSet<VolunteerHub.Domain.Entities.SkillCatalogItem> SkillCatalogItems => Set<VolunteerHub.Domain.Entities.SkillCatalogItem>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

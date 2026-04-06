@@ -10,11 +10,16 @@ public class OrganizerVerificationService : IOrganizerVerificationService
 {
     private readonly IOrganizerRepository _organizerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAdminAuditService _adminAuditService;
 
-    public OrganizerVerificationService(IOrganizerRepository organizerRepository, IUnitOfWork unitOfWork)
+    public OrganizerVerificationService(
+        IOrganizerRepository organizerRepository,
+        IUnitOfWork unitOfWork,
+        IAdminAuditService adminAuditService)
     {
         _organizerRepository = organizerRepository;
         _unitOfWork = unitOfWork;
+        _adminAuditService = adminAuditService;
     }
 
     public async Task<bool> IsOrganizerVerifiedAsync(Guid organizerId, CancellationToken cancellationToken = default)
@@ -76,6 +81,14 @@ public class OrganizerVerificationService : IOrganizerVerificationService
         _organizerRepository.AddReview(review);
         _organizerRepository.Update(profile);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _adminAuditService.LogAsync(
+            adminId,
+            $"OrganizerVerification.{newStatus}",
+            nameof(OrganizerProfile),
+            profile.Id,
+            comment,
+            cancellationToken);
 
         return Result.Success();
     }

@@ -67,6 +67,11 @@ public static class DependencyInjection
         services.AddScoped<ISponsorProfileService, VolunteerHub.Application.Services.SponsorProfileService>();
         services.AddScoped<ISponsorManagementService, VolunteerHub.Application.Services.SponsorManagementService>();
 
+        services.AddScoped<IAdminRepository, AdminRepository>();
+        services.AddScoped<IAdminAuditService, VolunteerHub.Application.Services.AdminAuditService>();
+        services.AddScoped<ISkillCatalogService, VolunteerHub.Application.Services.SkillCatalogService>();
+        services.AddScoped<IComplaintModerationService, VolunteerHub.Application.Services.ComplaintModerationService>();
+        services.AddScoped<IImpactReportService, VolunteerHub.Application.Services.ImpactReportService>();
         return services;
     }
 }
