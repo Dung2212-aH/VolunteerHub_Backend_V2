@@ -6,8 +6,9 @@ using VolunteerHub.Contracts.Requests;
 
 namespace VolunteerHub.Web.Controllers;
 
-[Route("[controller]")]
-public class AccountController : Controller
+[ApiController]
+[Route("api/auth")]
+public class AccountController : ControllerBase
 {
     private readonly IAccountService _accountService;
 
@@ -16,124 +17,70 @@ public class AccountController : Controller
         _accountService = accountService;
     }
 
-    [HttpGet("Register")]
-    public IActionResult Register()
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
-        if (User.Identity is { IsAuthenticated: true })
-        {
-            return RedirectToAction("Index", "Home");
-        }
-        return View();
-    }
-
-    [HttpPost("Register")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register([FromForm] RegisterRequest request, CancellationToken cancellationToken)
-    {
-        if (User.Identity is { IsAuthenticated: true })
-        {
-            return RedirectToAction("Index", "Home");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return View(request);
-        }
-
         var result = await _accountService.RegisterAsync(request, cancellationToken);
 
-        if (result.IsSuccess)
-        {
-            return RedirectToAction("Login");
-        }
+        if (!result.IsSuccess)
+            return BadRequest(new { Error = result.Error });
 
-        ModelState.AddModelError(string.Empty, result.Error.Message);
-        return View(request);
+        return Ok(new { Message = "Register successfully." });
     }
 
-    [HttpGet("Login")]
-    public IActionResult Login([FromQuery] string? returnUrl = null)
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        if (User.Identity is { IsAuthenticated: true })
-        {
-            return RedirectToAction("Index", "Home");
-        }
-        ViewData["ReturnUrl"] = returnUrl;
-        return View();
-    }
-
-    [HttpPost("Login")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login([FromForm] LoginRequest request, [FromQuery] string? returnUrl, CancellationToken cancellationToken)
-    {
-        if (User.Identity is { IsAuthenticated: true })
-        {
-            return RedirectToAction("Index", "Home");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View(request);
-        }
-
         var result = await _accountService.LoginAsync(request, cancellationToken);
 
-        if (result.IsSuccess)
-        {
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return LocalRedirect(returnUrl);
-            }
-            return RedirectToAction("Index", "Home");
-        }
+        if (!result.IsSuccess)
+            return BadRequest(new { Error = result.Error });
 
-        ModelState.AddModelError(string.Empty, result.Error.Message);
-        ViewData["ReturnUrl"] = returnUrl;
-        return View(request);
+        return Ok(new { Message = "Login successfully." });
     }
 
-    [HttpPost("Logout")]
     [Authorize]
-    [ValidateAntiForgeryToken]
+    [HttpPost("logout")]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         await _accountService.LogoutAsync(cancellationToken);
-        return RedirectToAction("Index", "Home");
+        return Ok(new { Message = "Logout successfully." });
     }
 
-    [HttpGet("ChangePassword")]
     [Authorize]
-    public IActionResult ChangePassword()
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
     {
-        return View();
-    }
-
-    [HttpPost("ChangePassword")]
-    [Authorize]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangePassword([FromForm] ChangePasswordRequest request, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(request);
-        }
-
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
-        {
+        if (string.IsNullOrWhiteSpace(userIdString) || !Guid.TryParse(userIdString, out var userId))
             return Unauthorized();
-        }
 
         var result = await _accountService.ChangePasswordAsync(userId, request, cancellationToken);
 
-        if (result.IsSuccess)
-        {
-            TempData["SuccessMessage"] = "Password changed successfully.";
-            return RedirectToAction("Index", "Home");
-        }
+        if (!result.IsSuccess)
+            return BadRequest(new { Error = result.Error });
 
-        ModelState.AddModelError(string.Empty, result.Error.Message);
-        return View(request);
+        return Ok(new { Message = "Password changed successfully." });
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        var roles = User.Claims
+            .Where(x => x.Type == ClaimTypes.Role)
+            .Select(x => x.Value)
+            .ToList();
+
+        return Ok(new
+        {
+            UserId = userId,
+            Email = email,
+            Roles = roles
+        });
     }
 }

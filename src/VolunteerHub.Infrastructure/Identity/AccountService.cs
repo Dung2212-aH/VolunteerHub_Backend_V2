@@ -24,6 +24,23 @@ public class AccountService : IAccountService
 
     public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
+        var allowedRoles = new[]
+        {
+            AppRoles.Volunteer,
+            AppRoles.Organizer,
+            AppRoles.Sponsor
+        };
+
+        var normalizedRole = allowedRoles
+            .FirstOrDefault(x => x.Equals(request.Role, StringComparison.OrdinalIgnoreCase));
+
+        if (normalizedRole is null)
+        {
+            return Result.Failure(new Error(
+                "Auth.InvalidRole",
+                "Role must be Volunteer, Organizer, or Sponsor."));
+        }
+
         var user = new ApplicationUser
         {
             UserName = request.Email,
@@ -33,23 +50,26 @@ public class AccountService : IAccountService
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
-        
+
         if (!result.Succeeded)
         {
             var errors = string.Join("; ", result.Errors.Select(e => e.Description));
             return Result.Failure(new Error("Auth.UserRegistrationFailed", errors));
         }
 
-        var roleResult = await _userManager.AddToRoleAsync(user, AppRoles.Volunteer);
+        var roleResult = await _userManager.AddToRoleAsync(user, normalizedRole);
         if (!roleResult.Succeeded)
         {
             await _userManager.DeleteAsync(user);
-            return Result.Failure(Error.UserRegistrationFailed);
+            var errors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
+            return Result.Failure(new Error("Auth.AssignRoleFailed", errors));
         }
 
-        // Trigger welcome notification (fire-and-forget safe)
         await _notificationService.SendWelcomeNotificationAsync(
-            user.Id, user.Email!, request.FirstName, cancellationToken);
+            user.Id,
+            user.Email!,
+            request.FirstName,
+            cancellationToken);
 
         return Result.Success();
     }

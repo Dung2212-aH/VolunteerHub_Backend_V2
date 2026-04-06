@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using VolunteerHub.Contracts.Constants;
 
 namespace VolunteerHub.Contracts.Requests;
 
@@ -19,6 +20,9 @@ public class RegisterRequest
     [Required]
     [StringLength(50)]
     public string LastName { get; set; } = string.Empty;
+
+    [Required]
+    public string Role { get; set; } = AppRoles.Volunteer;
 }
 
 public class LoginRequest
